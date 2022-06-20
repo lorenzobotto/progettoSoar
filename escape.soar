@@ -1,0 +1,498 @@
+rl -s learning on # enable RL
+indifferent-selection -g # MYFIX use epsilon-greedy decision making
+indifferent-selection -e 0.1 # MYFIX 10% deviation from greedy
+
+## Stato iniziale dell'agente
+
+sp {propose*initialize-escape
+  (state <s> -^impasse ^superstate nil)
+  -->
+  (<s> ^name escape)
+  (<s> ^problem-space <p> ^desired <d> ^robot <r> ^stanza <st> ^uscita <u> ^oggetti <o1> <o2> ^oggetti-combinabili <o3> <o4> <o5> ^oggetti-composti <o6> <o7> <o8> ^ultima-azione azione)
+  (<p> ^name escape)
+  (<d> ^escaped yes)
+  (<s> ^escaped no)
+  (<st> ^angoli <a1> <a2> <a3> <a4>)
+  (<r> ^altezza 150 ^posizione basso-sinistra ^braccio <b1> <b2>)
+  (<b1> ^nome destro ^ha-oggetti nessuno)
+  (<b2> ^nome sinistro ^ha-oggetti nessuno)
+  (<u> ^altezza 350 ^colpi 5)
+  (<o1> ^name tronco1 ^altezza 100 ^exists true)
+  (<o2> ^name tronco2 ^altezza 100 ^exists true)
+  (<o3> ^name molla ^exists true)
+  (<o4> ^name rametto ^exists true)
+  (<o5> ^name pietre)
+  (<o6> ^name fionda ^carica false ^composto-da <o3> <o4> ^exists false)
+  (<o7> ^composto-da <o3> <o5> ^exists false)
+  (<o8> ^composto-da <o4> <o5> ^exists false)
+  (<a1> ^nome alto-sinistra ^ha-oggetti <o3>)
+  (<a2> ^nome alto-destra ^ha-oggetti <o4>)
+  (<a3> ^nome basso-sinistra ^ha-oggetti <o5>)
+  (<a4> ^nome basso-destra ^ha-oggetti <o1> <o2>)
+}
+
+## Proposta di creazione
+sp {propose*combina-fionda
+  (state <s> ^oggetti-combinabili <o1> <o2>)
+  (<o1> ^name rametto ^exists true)
+  (<o2> ^name molla ^exists true)
+  -->
+  (<s> ^operator <op>)
+  (<op> ^name combina-oggetti
+        ^oggetti <o1> <o2>
+  )
+}
+
+sp {propose*combina-ramettopietre
+  (state <s> ^oggetti-combinabili <o1> <o2>
+  )
+  (<o1> ^name rametto ^exists true)
+  (<o2> ^name pietre)
+  -->
+  (<s> ^operator <op>)
+  (<op> ^name combina-oggetti
+        ^oggetti <o1> <o2>
+  )
+}
+
+sp {propose*combina-mollapietre
+  (state <s> ^oggetti-combinabili <o1> <o2>)
+  (<o1> ^name pietre)
+  (<o2> ^name molla ^exists true)
+  -->
+  (<s> ^operator <op>)
+  (<op> ^name combina-oggetti
+        ^oggetti <o1> <o2>
+  )
+}
+
+sp {propose*scomponi-pietrerametto
+   (state <s> ^oggetti-composti <oc>)
+   (<oc> ^composto-da <o1> <o2>)
+   (<o1> ^name rametto)
+   (<o2> ^name pietre)
+   (<oc> ^exists true)
+-->
+   (<s> ^operator <opNew>)
+   (<opNew> ^name scomponi ^oggetti <o1> <o2>)
+}
+
+sp {propose*scomponi-pietremolla
+   (state <s> ^oggetti-composti <oc>)
+   (<oc> ^composto-da <o1> <o2>)
+   (<o1> ^name pietre)
+   (<o2> ^name molla)
+   (<oc> ^exists true)
+-->
+   (<s> ^operator <opNew>)
+   (<opNew> ^name scomponi ^oggetti <o1> <o2>)
+}
+
+sp {propose*carica-fionda
+   (state <s> ^oggetti-composti <oc> ^oggetti-combinabili <o2> ^uscita <u>)
+   (<oc> ^name fionda ^exists true ^carica false)
+   (<o2> ^name pietre)
+   (<u> ^colpi <numColpi> {> 0 <numColpi>})
+-->
+   (<s> ^operator <op>)
+   (<op> ^name carica-fionda)
+}
+
+sp {propose*colpisci-ovunque
+   (state <s> ^oggetti-composti <oc> ^oggetti-combinabili <o2> ^uscita <u>)
+   (<oc> ^name fionda ^exists true ^carica true)
+   (<o2> ^name pietre)
+   (<u> ^colpi <numColpi> {> 0 <numColpi>})
+-->
+   (<s> ^operator <op>)
+   (<op> ^name colpisci-ovunque)
+}
+
+sp {propose*colpisci-estremita
+   (state <s> ^oggetti-composti <oc> ^oggetti-combinabili <o2> ^uscita <u>)
+   (<oc> ^name fionda ^exists true ^carica true)
+   (<o2> ^name pietre)
+   (<u> ^colpi <numColpi> {> 0 <numColpi>})
+-->
+   (<s> ^operator <op>)
+   (<op> ^name colpisci-estremita)
+}
+
+sp {propose*combina-tronchi
+   (state <s> ^uscita <u> ^oggetti <o1> <o2>)
+   (<o1> ^name tronco1 ^exists true)
+   (<o2> ^name tronco2 ^exists true)
+   (<u> ^colpi 0)
+-->
+   (<s> ^operator <op>)
+   (<op> ^name combina-tronchi ^oggetti <o1> <o2>)
+}
+
+sp {propose*arrampicatiedesci
+   (state <s> ^robot <r> ^uscita <u> ^oggetti-composti <oc>)
+   (<oc> ^name scala ^exists true)
+   (<u> ^colpi 0)
+-->
+   (<s> ^operator <op>)
+   (<op> ^name arrampicatiedesci)
+}
+
+## RL iniziali
+sp {rl*combina-fionda
+   (state <s> ^operator <op> +)
+   (<op> ^name combina-oggetti ^oggetti <o1> <o2>)
+   (<o1> ^name rametto ^exists true)
+   (<o2> ^name molla ^exists true)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*combina-ramettopietre
+   (state <s> ^operator <op> +)
+   (<op> ^name combina-oggetti ^oggetti <o1> <o2>)
+   (<o1> ^name rametto ^exists true)
+   (<o2> ^name pietre)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*combina-mollapietre
+   (state <s> ^operator <op> +)
+   (<op> ^name combina-oggetti ^oggetti <o1> <o2>)
+   (<o1> ^name pietre)
+   (<o2> ^name molla ^exists true)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*scomponi-ramettopietre
+   (state <s> ^operator <op> +)
+   (<op> ^name scomponi ^oggetti <o1> <o2>)
+   (<o1> ^name pietre)
+   (<o2> ^name rametto)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*scomponi-mollapietre
+   (state <s> ^operator <op> +)
+   (<op> ^name scomponi ^oggetti <o1> <o2>)
+   (<o1> ^name molla)
+   (<o2> ^name pietre)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*carica-fionda
+   (state <s> ^operator <op> +)
+   (<op> ^name carica-fionda)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*colpisci-ovunque
+   (state <s> ^operator <op> +)
+   (<op> ^name colpisci-ovunque)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*colpisci-estremita
+   (state <s> ^operator <op> +)
+   (<op> ^name colpisci-estremita)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*combina-tronchi
+   (state <s> ^operator <op> +)
+   (<op> ^name combina-tronchi)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*arrampicatiedesci
+   (state <s> ^operator <op> +)
+   (<op> ^name arrampicatiedesci)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+# Applica combinazione
+sp {apply*combina-pietrerametto
+   (state <s> ^operator <op> ^oggetti-composti <oc> ^ultima-azione <ultimaAzione>)
+   (<op> ^name combina-oggetti
+         ^oggetti <o1> <o2>)
+   (<o1>  ^name pietre)
+   (<o2> ^exists true ^name rametto)
+   (<oc> ^composto-da <oc1> <oc2>)
+   (<oc1> ^name pietre)
+   (<oc2> ^name rametto)
+-->
+   (<oc> ^exists true)
+   (<o2> ^exists false + true -)
+   (<s> ^ultima-azione <ultimaAzione> - combina-pietrerametto +)
+   (write (crlf) |Ho combinato l'oggetto: rametto con l'oggetto: pietre.|)
+}
+
+sp {apply*combina-fionda
+   (state <s> ^operator <op> ^oggetti-composti <oc> ^ultima-azione <ultimaAzione>)
+   (<op> ^name combina-oggetti
+         ^oggetti <o1> <o2>)
+   (<o1> ^exists true ^name molla)
+   (<o2> ^exists true ^name rametto)
+   (<oc> ^composto-da <oc1> <oc2>)
+   (<oc1> ^name rametto)
+   (<oc2> ^name molla)
+-->
+   (<oc> ^exists true)
+   (<o1> ^exists false + true -)
+   (<o2> ^exists false + true -)
+   (<s> ^ultima-azione <ultimaAzione> - combina-fionda +)
+   (write (crlf) |Ho combinato l'oggetto: rametto con l'oggetto: molla.|)
+}
+
+sp {apply*combina-pietremolla
+   (state <s> ^operator <op> ^oggetti-composti <oc> ^ultima-azione <ultimaAzione>)
+   (<op> ^name combina-oggetti
+         ^oggetti <o1> <o2>)
+   (<o1> ^exists true ^name molla)
+   (<o2> ^name pietre)
+   (<oc> ^composto-da <oc1> <oc2>)
+   (<oc1> ^name pietre)
+   (<oc2> ^name molla)
+-->
+   (<oc> ^exists true)
+   (<o1> ^exists false + true -)
+   (<s> ^ultima-azione <ultimaAzione> - combina-pietremolla +)
+   (write (crlf) |Ho combinato l'oggetto: molla con l'oggetto: pietre.|)
+}
+
+# Applica scomposizioni
+sp {apply*scomponi-pietremolla
+   (state <s>  ^operator <op>
+               ^oggetti-composti <oc>
+               ^ultima-azione <ultimaAzione>
+   )
+   (<op> ^name scomponi ^oggetti <o1> <o2>)
+   (<o1> ^name molla)
+   (<o2> ^name pietre)
+   (<oc> ^composto-da <oc1> <oc2> ^exists true)
+   (<oc1> ^name pietre)
+   (<oc2> ^name molla)
+   (<s> ^oggetti-combinabili <o3> <o4>)
+   (<o3> ^name molla)
+   (<o4> ^name pietre)
+-->
+   (<oc> ^exists false + true -)
+   (<o3> ^exists true + false -)
+   (<s> ^ultima-azione <ultimaAzione> - scomponi-pietremolla +)
+   (write (crlf) |Ho scomposto l'oggetto: molla con l'oggetto: pietre.|)
+}
+
+sp {apply*scomponi-pietrerametto
+   (state <s>  ^operator <op>
+               ^oggetti-composti <oc>
+               ^ultima-azione <ultimaAzione>
+   )
+   (<op> ^name scomponi ^oggetti <o1> <o2>)
+   (<o1> ^name pietre)
+   (<o2> ^name rametto)
+   (<oc> ^composto-da <oc1> <oc2> ^exists true)
+   (<oc1> ^name pietre)
+   (<oc2> ^name rametto)
+   (<s> ^oggetti-combinabili <o3> <o4>)
+   (<o3> ^name pietre)
+   (<o4> ^name rametto)
+-->
+   (<oc> ^exists false + true -)
+   (<o4> ^exists true + false -)
+   (<s> ^ultima-azione <ultimaAzione> - scomponi-pietrerametto +)
+   (write (crlf) |Ho scomposto l'oggetto: rametto con l'oggetto: pietre.|)
+}
+
+# Applica carica fionda
+sp {apply*carica-fionda
+   (state <s> ^operator <op> ^oggetti-composti <oc> ^oggetti-combinabili <o2> ^uscita <u> ^ultima-azione <ultimaAzione>)
+   (<oc> ^name fionda ^exists true ^carica false)
+   (<o2> ^name pietre)
+   (<u> ^colpi <numColpi> {> 0 <numColpi>})
+   (<op> ^name carica-fionda)
+-->
+   (<oc> ^carica false - true +)
+   (<s> ^ultima-azione <ultimaAzione> - carica-fionda +)
+   (write (crlf) |Ho caricato la fionda.|)
+}
+
+# Applica colpisci
+sp {apply*colpisci-ovunque
+   (state <s>  ^operator <op>
+               ^oggetti-composti <oc>
+               ^oggetti-combinabili <o2>
+               ^uscita <u>
+               ^ultima-azione <ultimaAzione>
+   )
+   (<op> ^name colpisci-ovunque)
+   (<oc> ^name fionda ^exists true ^carica true)
+   (<o2> ^name pietre)
+   (<u> ^colpi <numColpi> {> 0 <numColpi>})
+-->
+   (<oc> ^carica true - false +)
+   (<s> ^ultima-azione <ultimaAzione> - colpisci-ovunque +)
+   (write (crlf) |Ho colpito la finestra NON nell'estremità. Colpi rimanenti: | <numColpi> |.|)
+}
+
+sp {apply*colpisci-estremita
+   (state <s>  ^operator <op>
+               ^oggetti-composti <oc>
+               ^oggetti-combinabili <o2>
+               ^uscita <u>
+               ^ultima-azione <ultimaAzione>
+   )
+   (<op> ^name colpisci-estremita)
+   (<oc> ^name fionda ^exists true ^carica true)
+   (<o2> ^name pietre)
+   (<u> ^colpi <numColpi> {> 0 <numColpi>})
+-->
+   (<u> ^colpi (- <numColpi> 1) + <numColpi> -)
+   (<oc> ^carica true - false +)
+   (<s> ^ultima-azione <ultimaAzione> - colpisci-estremita +)
+   (write (crlf) |Ho colpito la finestra nell'estremità. Colpi rimanenti: | (- <numColpi> 1) |.|)
+}
+
+# Applica combinazione tronchi per uscire
+sp {apply*combina-tronchi
+   (state <s>  ^operator <op> ^oggetti <o1> <o2> ^uscita <u> ^ultima-azione <ultimaAzione>)
+   (<op> ^name combina-tronchi)
+   (<o1> ^name tronco1 ^exists true ^altezza <altezza1>)
+   (<o2> ^name tronco2 ^exists true ^altezza <altezza2>)
+   (<u> ^colpi 0)
+-->
+   (<s> ^oggetti-composti <ocNew>)
+   (<ocNew> ^name scala ^composto-da <o1> <o2> ^exists true ^altezza (+ <altezza1> <altezza2>))
+   (<o1> ^exists false + true -)
+   (<o2> ^exists false + true -)
+   (<s> ^ultima-azione <ultimaAzione> - combina-tronchi +)
+   (write (crlf) |Ho combinato i tronchi per creare una scala.|)
+}
+
+# Applica arrampicati ed esci
+sp {apply*arrampicatiedesci
+   (state <s> ^uscita <u> ^oggetti-composti <oc> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<op> ^name arrampicatiedesci)
+   (<oc> ^name scala ^exists true)
+   (<u> ^colpi 0)
+-->
+   (<s> ^escaped yes + no -)
+   (<s> ^ultima-azione <ultimaAzione> - arrampicatiedesci +)
+   (write (crlf) |Mi sono arrampicato sui tronchi e sono uscito dalla finestra che ho spaccato.|)
+}
+
+# Elaboro i reward
+sp {elaborate*reward-combina-fionda
+   (state <s> ^reward-link <r>
+              ^ultima-azione combina-fionda
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value 1)
+}
+
+sp {elaborate*reward-combina-pietremolla
+   (state <s> ^reward-link <r>
+              ^ultima-azione combina-pietremolla
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value -1)
+}
+
+sp {elaborate*reward-combina-pietrerametto
+   (state <s> ^reward-link <r>
+              ^ultima-azione combina-pietrerametto
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value -1)
+}
+
+sp {elaborate*reward-scomponi-pietremolla
+   (state <s> ^reward-link <r>
+              ^ultima-azione scomponi-pietremolla
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value -1)
+}
+
+sp {elaborate*reward-scomponi-pietrerametto
+   (state <s> ^reward-link <r>
+              ^ultima-azione scomponi-pietrerametto
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value -1)
+}
+
+sp {elaborate*reward-carica-fionda
+   (state <s> ^reward-link <r>
+              ^ultima-azione carica-fionda
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value 1)
+}
+
+sp {elaborate*reward-colpisci-ovunque
+   (state <s> ^reward-link <r>
+              ^ultima-azione colpisci-ovunque
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value -1)
+}
+
+sp {elaborate*reward-colpisci-estremita
+   (state <s> ^reward-link <r>
+              ^ultima-azione colpisci-estremita
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value 1)
+}
+
+sp {elaborate*reward-combina-tronchi
+   (state <s> ^reward-link <r>
+              ^ultima-azione combina-tronchi
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value 1)
+}
+
+sp {elaborate*reward-arrampicatiedesci
+   (state <s> ^reward-link <r>
+              ^ultima-azione arrampicatiedesci
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value 1)
+}
+
+# Condizione di terminazione
+sp {evaluate*state*success
+  (state <s> ^desired <d> )
+  (<d> ^escaped <val>)
+  (<s> ^escaped <val>)
+  -->
+  (<s> ^success <d>)
+}
+
+sp {top-goal*halt-state-success
+    :default
+  (state <s>  ^desired <eb>) 
+  (<s> ^success <eb>)
+  -->
+  (write (crlf)  |Goal terminato con successo.| )
+  (halt)
+}

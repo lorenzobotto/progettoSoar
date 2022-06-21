@@ -8,91 +8,158 @@ sp {propose*initialize-escape
   (state <s> -^impasse ^superstate nil)
   -->
   (<s> ^name escape)
-  (<s> ^problem-space <p> ^desired <d> ^robot <r> ^stanza <st> ^uscita <u> ^oggetti <o1> <o2> ^oggetti-combinabili <o3> <o4> <o5> ^oggetti-composti <o6> <o7> <o8> ^ultima-azione azione)
+  (<s> ^problem-space <p> ^desired <d> ^robot <r> ^uscita <u> ^oggetti <o1> <o2> <o3> <o4> <o5> ^ultima-azione azione)
   (<p> ^name escape)
   (<d> ^escaped yes)
   (<s> ^escaped no)
-  (<st> ^angoli <a1> <a2> <a3> <a4>)
-  (<r> ^altezza 150 ^posizione basso-sinistra ^braccio <b1> <b2>)
-  (<b1> ^nome destro ^ha-oggetti nessuno)
-  (<b2> ^nome sinistro ^ha-oggetti nessuno)
+  (<r> ^altezza 150 ^posizione pietre ^braccio <b1> <b2> ^bracci-occupati 0)
+  (<b1> ^name destro ^ha-oggetti nessuno)
+  (<b2> ^name sinistro ^ha-oggetti nessuno)
   (<u> ^altezza 350 ^colpi 5)
-  (<o1> ^name tronco1 ^altezza 100 ^exists true)
-  (<o2> ^name tronco2 ^altezza 100 ^exists true)
+  (<o1> ^name tronco1 ^altezza 100 ^posizionato no ^exists true)
+  (<o2> ^name tronco2 ^altezza 100 ^posizionato no ^exists true)
   (<o3> ^name molla ^exists true)
   (<o4> ^name rametto ^exists true)
-  (<o5> ^name pietre)
-  (<o6> ^name fionda ^carica false ^composto-da <o3> <o4> ^exists false)
-  (<o7> ^composto-da <o3> <o5> ^exists false)
-  (<o8> ^composto-da <o4> <o5> ^exists false)
-  (<a1> ^nome alto-sinistra ^ha-oggetti <o3>)
-  (<a2> ^nome alto-destra ^ha-oggetti <o4>)
-  (<a3> ^nome basso-sinistra ^ha-oggetti <o5>)
-  (<a4> ^nome basso-destra ^ha-oggetti <o1> <o2>)
+  (<o5> ^name pietre ^exists true)
 }
+
+## Proposta di movimento
+sp {propose*movimento
+  (state <s> ^robot <r> ^oggetti <o>)
+  (<r> ^posizione <posRobot> ^bracci-occupati <numBO> {< 2 <numBO>})
+  (<o> ^name <nomeOggetto> <> <posRobot> <> tronco1 <> tronco2 ^exists true)
+  -->
+  (<s> ^operator <op>)
+  (<op> ^name movimento
+        ^posizione <nomeOggetto>
+  )
+}
+
+sp {propose*movimento-tronco
+  (state <s> ^robot <r> ^oggetti <o>)
+  (<r> ^posizione <posRobot> ^bracci-occupati 0)
+  (<o> ^name <nomeOggetto> <> rametto <> pietre <> molla ^exists true)
+  -->
+  (<s> ^operator <op>)
+  (<op> ^name movimento
+        ^posizione <nomeOggetto>
+  )
+}
+
+## Proposta di presa oggetto
+sp {propose*presa-oggetto
+  (state <s> ^robot <r> ^oggetti <o>)
+  (<r> ^posizione <posRobot> <> tronco1 <> tronco2 ^braccio <b1>)
+  (<b1> ^ha-oggetti nessuno)
+  (<o> ^name <posRobot> ^exists true)
+  -->
+  (<s> ^operator <op>)
+  (<op> ^name presa-oggetto
+        ^oggetto <o>
+        ^braccio <b1>
+  )
+}
+
+## Proposta di presa oggetto
+sp {propose*presa-oggetto-tronco
+  (state <s> ^robot <r> ^oggetti <o>)
+  (<r> ^posizione <posRobot> <> rametto <> pietre <> molla ^bracci-occupati 0)
+  (<o> ^name <posRobot> ^exists true)
+  -->
+  (<s> ^operator <op>)
+  (<op> ^name presa-oggetto-tronco
+        ^oggetto <o>
+  )
+}
+
+
+## Proposta di posa oggetto
+# gp {propose*posa-oggetto
+#   (state <s> ^robot <r>)
+#   (<r> ^braccio <b1>)
+#   (<b1> ^ha-oggetti <ogg> <> nessuno)
+#   (<ogg> ^name <nomeOggetto> <> fionda <> ramettopietre <> mollapietre)
+#   -->
+#   (<s> ^operator <op>)
+#   (<op> ^name posa-oggetto
+#         ^oggetto <ogg>
+#         ^braccio <b1>
+#   )
+# }
 
 ## Proposta di creazione
 sp {propose*combina-fionda
-  (state <s> ^oggetti-combinabili <o1> <o2>)
-  (<o1> ^name rametto ^exists true)
-  (<o2> ^name molla ^exists true)
+  (state <s> ^robot <r>)
+  (<r> ^braccio <b1> <b2>)
+  (<b1> ^ha-oggetti <ogg1>)
+  (<b2> ^ha-oggetti <ogg2>)
+  (<ogg1> ^name rametto)
+  (<ogg2> ^name molla)
   -->
   (<s> ^operator <op>)
-  (<op> ^name combina-oggetti
-        ^oggetti <o1> <o2>
-  )
+  (<op> ^name combina-fionda)
 }
 
 sp {propose*combina-ramettopietre
-  (state <s> ^oggetti-combinabili <o1> <o2>
-  )
-  (<o1> ^name rametto ^exists true)
-  (<o2> ^name pietre)
+  (state <s> ^robot <r>)
+  (<r> ^braccio <b1> <b2>)
+  (<b1> ^ha-oggetti <ogg1>)
+  (<b2> ^ha-oggetti <ogg2>)
+  (<ogg1> ^name rametto)
+  (<ogg2> ^name pietre)
   -->
   (<s> ^operator <op>)
-  (<op> ^name combina-oggetti
-        ^oggetti <o1> <o2>
-  )
+  (<op> ^name combina-ramettopietre)
 }
 
 sp {propose*combina-mollapietre
-  (state <s> ^oggetti-combinabili <o1> <o2>)
-  (<o1> ^name pietre)
-  (<o2> ^name molla ^exists true)
+  (state <s> ^robot <r>)
+  (<r> ^braccio <b1> <b2>)
+  (<b1> ^ha-oggetti <ogg1>)
+  (<b2> ^ha-oggetti <ogg2>)
+  (<ogg1> ^name molla)
+  (<ogg2> ^name pietre)
   -->
   (<s> ^operator <op>)
-  (<op> ^name combina-oggetti
-        ^oggetti <o1> <o2>
-  )
+  (<op> ^name combina-mollapietre)
 }
 
-sp {propose*scomponi-pietrerametto
-   (state <s> ^oggetti-composti <oc>)
-   (<oc> ^composto-da <o1> <o2>)
-   (<o1> ^name rametto)
-   (<o2> ^name pietre)
-   (<oc> ^exists true)
+sp {propose*scomponi-ramettopietre
+   (state <s> ^robot <r>)
+   (<r> ^braccio <b1>)
+   (<b1> ^ha-oggetti <ogg1>)
+   (<ogg1> ^name ramettopietre)
 -->
    (<s> ^operator <opNew>)
-   (<opNew> ^name scomponi ^oggetti <o1> <o2>)
+   (<opNew> ^name scomponi-ramettopietre)
 }
 
-sp {propose*scomponi-pietremolla
-   (state <s> ^oggetti-composti <oc>)
-   (<oc> ^composto-da <o1> <o2>)
-   (<o1> ^name pietre)
-   (<o2> ^name molla)
-   (<oc> ^exists true)
+sp {propose*scomponi-mollapietre
+   (state <s> ^robot <r>)
+   (<r> ^braccio <b1>)
+   (<b1> ^ha-oggetti <ogg1>)
+   (<ogg1> ^name mollapietre)
 -->
    (<s> ^operator <opNew>)
-   (<opNew> ^name scomponi ^oggetti <o1> <o2>)
+   (<opNew> ^name scomponi-mollapietre)
+}
+
+sp {propose*scomponi-fionda
+   (state <s> ^robot <r>)
+   (<r> ^braccio <b1>)
+   (<b1> ^ha-oggetti <ogg1>)
+   (<ogg1> ^name fionda)
+-->
+   (<s> ^operator <opNew>)
+   (<opNew> ^name scomponi-fionda)
 }
 
 sp {propose*carica-fionda
-   (state <s> ^oggetti-composti <oc> ^oggetti-combinabili <o2> ^uscita <u>)
-   (<oc> ^name fionda ^exists true ^carica false)
-   (<o2> ^name pietre)
-   (<u> ^colpi <numColpi> {> 0 <numColpi>})
+   (state <s> ^robot <r>)
+   (<r> ^braccio <b1> <b2>)
+   (<b1> ^ha-oggetti <ogg1>)
+   (<b2> ^ha-oggetti.name pietre)
+   (<ogg1> ^name fionda ^carica false)
 -->
    (<s> ^operator <op>)
    (<op> ^name carica-fionda)
@@ -118,14 +185,30 @@ sp {propose*colpisci-estremita
    (<op> ^name colpisci-estremita)
 }
 
-sp {propose*combina-tronchi
-   (state <s> ^uscita <u> ^oggetti <o1> <o2>)
-   (<o1> ^name tronco1 ^exists true)
-   (<o2> ^name tronco2 ^exists true)
-   (<u> ^colpi 0)
+sp {propose*posiziona-tronco
+   (state <s> ^robot <robot> ^stanza <st>)
+   (<robot> ^braccio <b1> ^posizione <posRobot>)
+   (<b1> ^ha-oggetti <o1>)
+   (<o1> ^name tronco ^posizionato no)
+   (<st> ^angoli <a>)
+   (<a> ^name <posRobot> ^ha-uscita si)
 -->
    (<s> ^operator <op>)
-   (<op> ^name combina-tronchi ^oggetti <o1> <o2>)
+   (<op> ^name posiziona-tronco)
+}
+
+sp {propose*posiziona-tronco-sopra
+   (state <s> ^robot <robot> ^stanza <st>)
+   (<robot> ^braccio <b1> ^posizione <posRobot>)
+   (<b1> ^ha-oggetti <o1>)
+   (<o1> ^name tronco ^posizionato no)
+   (<st> ^angoli <a>)
+   (<a> ^name <posRobot>)
+   (<a> ^ha-oggetti <o1> ^ha-uscita si)
+   (<o1> ^name tronco ^posizionato si)
+-->
+   (<s> ^operator <op>)
+   (<op> ^name posiziona-tronco-sopra)
 }
 
 sp {propose*arrampicatiedesci
@@ -138,19 +221,47 @@ sp {propose*arrampicatiedesci
 }
 
 ## RL iniziali
+sp {rl*movimento
+   (state <s> ^operator <op> +)
+   (<op> ^name movimento)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*presa-oggetto
+   (state <s> ^operator <op> +)
+   (<op> ^name presa-oggetto)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*presa-oggetto-tronco
+   (state <s> ^operator <op> +)
+   (<op> ^name presa-oggetto-tronco)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+# gp {rl*posa-oggetto
+#    (state <s> ^operator <op> +)
+#    (<op> ^name posa-oggetto)
+# -->
+#    (<s> ^operator <op> = 0)
+# }
+
 sp {rl*combina-fionda
    (state <s> ^operator <op> +)
-   (<op> ^name combina-oggetti ^oggetti <o1> <o2>)
-   (<o1> ^name rametto ^exists true)
-   (<o2> ^name molla ^exists true)
+   (<op> ^name combina-fionda ^oggetti <o1> <o2>)
+   (<o1> ^name rametto)
+   (<o2> ^name molla)
 -->
    (<s> ^operator <op> = 0)
 }
 
 sp {rl*combina-ramettopietre
    (state <s> ^operator <op> +)
-   (<op> ^name combina-oggetti ^oggetti <o1> <o2>)
-   (<o1> ^name rametto ^exists true)
+   (<op> ^name combina-ramettopietre ^oggetti <o1> <o2>)
+   (<o1> ^name rametto)
    (<o2> ^name pietre)
 -->
    (<s> ^operator <op> = 0)
@@ -158,27 +269,30 @@ sp {rl*combina-ramettopietre
 
 sp {rl*combina-mollapietre
    (state <s> ^operator <op> +)
-   (<op> ^name combina-oggetti ^oggetti <o1> <o2>)
+   (<op> ^name combina-mollapietre ^oggetti <o1> <o2>)
    (<o1> ^name pietre)
-   (<o2> ^name molla ^exists true)
+   (<o2> ^name molla)
 -->
    (<s> ^operator <op> = 0)
 }
 
 sp {rl*scomponi-ramettopietre
    (state <s> ^operator <op> +)
-   (<op> ^name scomponi ^oggetti <o1> <o2>)
-   (<o1> ^name pietre)
-   (<o2> ^name rametto)
+   (<op> ^name scomponi-ramettopietre)
 -->
    (<s> ^operator <op> = 0)
 }
 
 sp {rl*scomponi-mollapietre
    (state <s> ^operator <op> +)
-   (<op> ^name scomponi ^oggetti <o1> <o2>)
-   (<o1> ^name molla)
-   (<o2> ^name pietre)
+   (<op> ^name scomponi-mollapietre)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*scomponi-fionda
+   (state <s> ^operator <op> +)
+   (<op> ^name scomponi-fionda)
 -->
    (<s> ^operator <op> = 0)
 }
@@ -204,9 +318,16 @@ sp {rl*colpisci-estremita
    (<s> ^operator <op> = 0)
 }
 
-sp {rl*combina-tronchi
+sp {rl*posizionato-tronco
    (state <s> ^operator <op> +)
-   (<op> ^name combina-tronchi)
+   (<op> ^name posizionato-tronco)
+-->
+   (<s> ^operator <op> = 0)
+}
+
+sp {rl*posiziona-tronco-sopra
+   (state <s> ^operator <op> +)
+   (<op> ^name posiziona-tronco-sopra)
 -->
    (<s> ^operator <op> = 0)
 }
@@ -218,108 +339,183 @@ sp {rl*arrampicatiedesci
    (<s> ^operator <op> = 0)
 }
 
-# Applica combinazione
-sp {apply*combina-pietrerametto
-   (state <s> ^operator <op> ^oggetti-composti <oc> ^ultima-azione <ultimaAzione>)
-   (<op> ^name combina-oggetti
-         ^oggetti <o1> <o2>)
-   (<o1>  ^name pietre)
-   (<o2> ^exists true ^name rametto)
-   (<oc> ^composto-da <oc1> <oc2>)
-   (<oc1> ^name pietre)
-   (<oc2> ^name rametto)
+# Applica movimento
+sp {apply*movimento
+   (state <s> ^robot <r> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<op> ^name movimento ^posizione <posNuova>)
+   (<r> ^posizione <posRobot>)
 -->
-   (<oc> ^exists true)
-   (<o2> ^exists false + true -)
-   (<s> ^ultima-azione <ultimaAzione> - combina-pietrerametto +)
+   (<r> ^posizione <posRobot> - <posNuova> +)
+   (<s> ^ultima-azione <ultimaAzione> - movimento +)
+   (write (crlf) |Mi sono spostato verso l'oggetto: | <posNuova> |.|)
+}
+
+sp {apply*presa-oggetto
+   (state <s> ^robot <r> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<r> ^posizione <posRobot> ^bracci-occupati <numBO>)
+   (<op> ^name presa-oggetto ^braccio <b1> ^oggetto <og>)
+   (<og> ^name <nomeOggetto> <> tronco) 
+   (<b1> ^name <nomeBraccio>)
+-->
+   (<b1> ^ha-oggetti <og> + nessuno -)
+   (<og> ^exists true - false +)
+   (<r> ^bracci-occupati <numBO> - (+ <numBO> 1) +)
+   (<s> ^ultima-azione <ultimaAzione> - presa-oggetto +)
+   (write (crlf) |Ho preso nel braccio | <nomeBraccio> | l'oggetto: | <nomeOggetto> |.|)
+}
+
+sp {apply*presa-oggetto-tronco
+   (state <s> ^robot <r> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<r> ^posizione <posRobot> ^bracci-occupati 0 ^bracci <b1> <b2>)
+   (<b1> ^name destro)
+   (<b2> ^name sinistro)
+   (<op> ^name presa-oggetto-tronco ^oggetto <og>)
+   (<og> ^name <nomeOggetto>)
+-->
+   (<b1> ^ha-oggetti <og> + nessuno -)
+   (<b2> ^ha-oggetti <og> + nessuno -)
+   (<og> ^exists true - false +)
+   (<r> ^bracci-occupati 0 - 2 +)
+   (<s> ^ultima-azione <ultimaAzione> - presa-oggetto +)
+   (write (crlf) |Ho preso il | <nomeOggetto> | con entrambe le braccia.|)
+}
+
+# gp {apply*posa-oggetto
+#   (state <s> ^robot <r> ^stanza <st> ^operator <op>)
+#   (state <s> ^robot <r> ^stanza <st> ^operator <op> ^ultima-azione <ultimaAzione>)
+#    (<st> ^angoli <a>)
+#    (<r> ^posizione <posRobot>)
+#    (<a> ^name <posRobot>)
+#    (<op> ^name posa-oggetto ^braccio <b1> ^oggetto <ogg>)
+#    (<ogg> ^name <nomeOggetto>)
+#    (<b1> ^name <nomeBraccio>)
+# -->
+#   (<b1> ^ha-oggetti <ogg> - nessuno +)
+#   (<a> ^ha-oggetti <ogg> +)
+#   (<s> ^ultima-azione <ultimaAzione> - posa-oggetto +)
+#   (write (crlf) |Ho posato l'oggetto | <nomeOggetto> | che avevo nel braccio | <nomeBraccio> |.|)
+# }
+
+# Applica combinazione
+sp {apply*combina-ramettopietre
+   (state <s> ^robot <r> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<op> ^name combina-ramettopietre)
+   (<r> ^braccio <b1> <b2>)
+   (<b1> ^name destro ^ha-oggetti <ob1>)
+   (<ob1> ^name <ogg1Nome>)
+   (<b2> ^name sinistro ^ha-oggetti <ob2>)
+   (<ob2> ^name <ogg2Nome>)
+-->
+   (<b1> ^ha-oggetti <ob1> -)
+   (<b2> ^ha-oggetti <ob2> - nessuno +)
+   (<b1> ^ha-oggetti <ob1New> +)
+   (<ob1New> ^name ramettopietre)
+   (<r> ^bracci-occupati 2 - 1 +)
+   (<s> ^ultima-azione <ultimaAzione> - combina-ramettopietre +)
    (write (crlf) |Ho combinato l'oggetto: rametto con l'oggetto: pietre.|)
 }
 
 sp {apply*combina-fionda
-   (state <s> ^operator <op> ^oggetti-composti <oc> ^ultima-azione <ultimaAzione>)
-   (<op> ^name combina-oggetti
-         ^oggetti <o1> <o2>)
-   (<o1> ^exists true ^name molla)
-   (<o2> ^exists true ^name rametto)
-   (<oc> ^composto-da <oc1> <oc2>)
-   (<oc1> ^name rametto)
-   (<oc2> ^name molla)
+   (state <s> ^robot <r> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<op> ^name combina-fionda)
+   (<r> ^braccio <b1> <b2>)
+   (<b1> ^name destro ^ha-oggetti <ob1>)
+   (<ob1> ^name <ogg1Nome>)
+   (<b2> ^name sinistro ^ha-oggetti <ob2>)
+   (<ob2> ^name <ogg2Nome>)
 -->
-   (<oc> ^exists true)
-   (<o1> ^exists false + true -)
-   (<o2> ^exists false + true -)
+   (<b1> ^ha-oggetti <ob1> -)
+   (<b2> ^ha-oggetti <ob2> - nessuno +)
+   (<b1> ^ha-oggetti <ob1New> +)
+   (<ob1New> ^name fionda ^carica false)
+   (<r> ^bracci-occupati 2 - 1 +)
    (<s> ^ultima-azione <ultimaAzione> - combina-fionda +)
    (write (crlf) |Ho combinato l'oggetto: rametto con l'oggetto: molla.|)
 }
 
-sp {apply*combina-pietremolla
-   (state <s> ^operator <op> ^oggetti-composti <oc> ^ultima-azione <ultimaAzione>)
-   (<op> ^name combina-oggetti
-         ^oggetti <o1> <o2>)
-   (<o1> ^exists true ^name molla)
-   (<o2> ^name pietre)
-   (<oc> ^composto-da <oc1> <oc2>)
-   (<oc1> ^name pietre)
-   (<oc2> ^name molla)
+sp {apply*combina-mollapietre
+   (state <s> ^robot <r> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<op> ^name combina-mollapietre)
+   (<r> ^braccio <b1> <b2>)
+   (<b1> ^name destro ^ha-oggetti <ob1>)
+   (<ob1> ^name <ogg1Nome>)
+   (<b2> ^name sinistro ^ha-oggetti <ob2>)
+   (<ob2> ^name <ogg2Nome>)
 -->
-   (<oc> ^exists true)
-   (<o1> ^exists false + true -)
-   (<s> ^ultima-azione <ultimaAzione> - combina-pietremolla +)
+   (<b1> ^ha-oggetti <ob1> -)
+   (<b2> ^ha-oggetti <ob2> - nessuno +)
+   (<b1> ^ha-oggetti <ob1New> +)
+   (<ob1New> ^name mollapietre)
+   (<r> ^bracci-occupati 2 - 1 +)
+   (<s> ^ultima-azione <ultimaAzione> - combina-mollapietre +)
    (write (crlf) |Ho combinato l'oggetto: molla con l'oggetto: pietre.|)
 }
 
 # Applica scomposizioni
-sp {apply*scomponi-pietremolla
-   (state <s>  ^operator <op>
-               ^oggetti-composti <oc>
-               ^ultima-azione <ultimaAzione>
-   )
-   (<op> ^name scomponi ^oggetti <o1> <o2>)
-   (<o1> ^name molla)
-   (<o2> ^name pietre)
-   (<oc> ^composto-da <oc1> <oc2> ^exists true)
-   (<oc1> ^name pietre)
-   (<oc2> ^name molla)
-   (<s> ^oggetti-combinabili <o3> <o4>)
-   (<o3> ^name molla)
-   (<o4> ^name pietre)
+sp {apply*scomponi-mollapietre
+   (state <s>  ^robot <r> ^stanza <st> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<op> ^name scomponi-mollapietre)
+   (<r> ^braccio <b1>)
+   (<b1> ^ha-oggetti <ob1>)
+   (<ob1> ^name mollapietre)
+   (<r> ^posizione <posRobot>)
+   (<st> ^angoli <a>)
+   (<a> ^name <posRobot>)
 -->
-   (<oc> ^exists false + true -)
-   (<o3> ^exists true + false -)
-   (<s> ^ultima-azione <ultimaAzione> - scomponi-pietremolla +)
+   (<b1> ^ha-oggetti <ob1> - nessuno +)
+   (<a> ^ha-oggetti <o1> <o2>)
+   (<o1> ^name pietre)
+   (<o2> ^name molla)
+   (<s> ^ultima-azione <ultimaAzione> - scomponi-mollapietre +)
    (write (crlf) |Ho scomposto l'oggetto: molla con l'oggetto: pietre.|)
 }
 
-sp {apply*scomponi-pietrerametto
-   (state <s>  ^operator <op>
-               ^oggetti-composti <oc>
-               ^ultima-azione <ultimaAzione>
-   )
-   (<op> ^name scomponi ^oggetti <o1> <o2>)
+sp {apply*scomponi-ramettopietre
+   (state <s>  ^robot <r> ^stanza <st> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<op> ^name scomponi-ramettopietre)
+   (<r> ^braccio <b1>)
+   (<b1> ^ha-oggetti <ob1>)
+   (<ob1> ^name ramettopietre)
+   (<r> ^posizione <posRobot>)
+   (<st> ^angoli <a>)
+   (<a> ^name <posRobot>)
+-->
+   (<b1> ^ha-oggetti <ob1> - nessuno +)
+   (<a> ^ha-oggetti <o1> <o2>)
    (<o1> ^name pietre)
    (<o2> ^name rametto)
-   (<oc> ^composto-da <oc1> <oc2> ^exists true)
-   (<oc1> ^name pietre)
-   (<oc2> ^name rametto)
-   (<s> ^oggetti-combinabili <o3> <o4>)
-   (<o3> ^name pietre)
-   (<o4> ^name rametto)
--->
-   (<oc> ^exists false + true -)
-   (<o4> ^exists true + false -)
-   (<s> ^ultima-azione <ultimaAzione> - scomponi-pietrerametto +)
+   (<s> ^ultima-azione <ultimaAzione> - scomponi-ramettopietre +)
    (write (crlf) |Ho scomposto l'oggetto: rametto con l'oggetto: pietre.|)
+}
+
+sp {apply*scomponi-fionda
+   (state <s>  ^robot <r> ^stanza <st> ^operator <op> ^ultima-azione <ultimaAzione>)
+   (<op> ^name scomponi-fionda)
+   (<r> ^braccio <b1>)
+   (<b1> ^ha-oggetti <ob1>)
+   (<ob1> ^name fionda)
+   (<r> ^posizione <posRobot>)
+   (<st> ^angoli <a>)
+   (<a> ^name <posRobot>)
+-->
+   (<b1> ^ha-oggetti <ob1> - nessuno +)
+   (<a> ^ha-oggetti <o1> <o2>)
+   (<o1> ^name pietre)
+   (<o2> ^name rametto)
+   (<s> ^ultima-azione <ultimaAzione> - scomponi-fionda +)
+   (write (crlf) |Ho scomposto l'oggetto fionda.|)
 }
 
 # Applica carica fionda
 sp {apply*carica-fionda
-   (state <s> ^operator <op> ^oggetti-composti <oc> ^oggetti-combinabili <o2> ^uscita <u> ^ultima-azione <ultimaAzione>)
-   (<oc> ^name fionda ^exists true ^carica false)
-   (<o2> ^name pietre)
-   (<u> ^colpi <numColpi> {> 0 <numColpi>})
+   (state <s> ^robot <r> ^operator <op> ^ultima-azione <ultimaAzione>)
    (<op> ^name carica-fionda)
+   (<r> ^braccio <b1> <b2>)
+   (<b1> ^ha-oggetti <ob1>)
+   (<b2> ^ha-oggetti.name pietre)
+   (<ob1> ^name fionda ^carica false)
 -->
-   (<oc> ^carica false - true +)
+   (<ob1> ^carica false - true +)
    (<s> ^ultima-azione <ultimaAzione> - carica-fionda +)
    (write (crlf) |Ho caricato la fionda.|)
 }
@@ -361,18 +557,35 @@ sp {apply*colpisci-estremita
 }
 
 # Applica combinazione tronchi per uscire
-sp {apply*combina-tronchi
-   (state <s>  ^operator <op> ^oggetti <o1> <o2> ^uscita <u> ^ultima-azione <ultimaAzione>)
-   (<op> ^name combina-tronchi)
-   (<o1> ^name tronco1 ^exists true ^altezza <altezza1>)
-   (<o2> ^name tronco2 ^exists true ^altezza <altezza2>)
-   (<u> ^colpi 0)
+sp {apply*posiziona-tronco
+   (state <s> ^robot <robot> ^stanza <st>)
+   (<robot> ^braccio <b1> ^posizione <posRobot>)
+   (<b1> ^ha-oggetti <o1>)
+   (<o1> ^name tronco ^posizionato no)
+   (<st> ^angoli <a>)
+   (<a> ^name <posRobot> ^ha-uscita si)
 -->
-   (<s> ^oggetti-composti <ocNew>)
-   (<ocNew> ^name scala ^composto-da <o1> <o2> ^exists true ^altezza (+ <altezza1> <altezza2>))
-   (<o1> ^exists false + true -)
-   (<o2> ^exists false + true -)
-   (<s> ^ultima-azione <ultimaAzione> - combina-tronchi +)
+   (<b1> ^ha-oggetti <o1> - nessuno +)
+   (<a> ^ha-oggetti <o1>)
+   (<o1> ^posizionato si)
+   (<s> ^ultima-azione <ultimaAzione> - posiziona-tronco +)
+   (write (crlf) |Ho combinato i tronchi per creare una scala.|)
+}
+
+sp {apply*posiziona-tronco-sopra
+   (state <s> ^robot <robot> ^stanza <st>)
+   (<robot> ^braccio <b1> ^posizione <posRobot>)
+   (<b1> ^ha-oggetti <o1>)
+   (<o1> ^name tronco ^posizionato no)
+   (<st> ^angoli <a>)
+   (<a> ^name <posRobot>)
+   (<a> ^ha-oggetti <o1> ^ha-uscita si)
+   (<o1> ^name tronco ^posizionato si)
+-->
+   (<b1> ^ha-oggetti <o1> - nessuno +)
+   (<a> ^ha-oggetti <o1>)
+   (<o1> ^posizionato si)
+   (<s> ^ultima-azione <ultimaAzione> - posiziona-tronco-sopra +)
    (write (crlf) |Ho combinato i tronchi per creare una scala.|)
 }
 
@@ -389,6 +602,76 @@ sp {apply*arrampicatiedesci
 }
 
 # Elaboro i reward
+# sp {elaborate*reward-posa-oggetti-braccia-piene
+#    (state <s> ^reward-link <r>
+#               ^ultima-azione posa-oggetto
+#               ^robot <robot>
+#    )
+#    (<robot> ^braccio <b1> <b2>)
+#    (<b1> ^name destro ^ha-oggetti <ogg1> <> nessuno)
+#    (<b2> ^name sinistro ^ha-oggetti <ogg2> <> nessuno)
+# -->
+#    (<r> ^reward <rr>)
+#    (<rr> ^value -1)
+# }
+
+# sp {elaborate*reward-posa-oggetti-braccia-non-piene
+#    (state <s> ^reward-link <r>
+#               ^ultima-azione posa-oggetto
+#               ^robot <robot>
+#    )
+#    (<robot> ^braccio <b1> <b2>)
+#    (<b1> ^ha-oggetti <ogg1> <> nessuno)
+#    (<b2> ^ha-oggetti nessuno)
+# -->
+#    (<r> ^reward <rr>)
+#    (<rr> ^value -1)
+# }
+
+# sp {elaborate*reward-posa-oggetti-braccia-vuote
+#    (state <s> ^reward-link <r>
+#               ^ultima-azione posa-oggetto
+#               ^robot <robot>
+#    )
+#    (<robot> ^braccio <b1> <b2>)
+#    (<b1> ^ha-oggetti nessuno)
+#    (<b2> ^ha-oggetti nessuno)
+# -->
+#    (<r> ^reward <rr>)
+#    (<rr> ^value -1)
+# }
+
+sp {elaborate*reward-movimento-con-oggetti
+   (state <s> ^reward-link <r>
+              ^ultima-azione movimento
+              ^robot <robot>
+   )
+   (<robot> ^braccio <b1> <b2>)
+   (<b1> ^name destro ^ha-oggetti <ogg1> <> nessuno)
+   (<b2> ^name sinistro ^ha-oggetti <ogg2> <> nessuno)
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value -1)
+}
+
+sp {elaborate*reward-presa-oggetto
+   (state <s> ^reward-link <r>
+              ^ultima-azione presa-oggetto
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value 1)
+}
+
+sp {elaborate*reward-presa-oggetto-tronco
+   (state <s> ^reward-link <r>
+              ^ultima-azione presa-oggetto-tronco
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value 1)
+}
+
 sp {elaborate*reward-combina-fionda
    (state <s> ^reward-link <r>
               ^ultima-azione combina-fionda
@@ -398,36 +681,45 @@ sp {elaborate*reward-combina-fionda
    (<rr> ^value 1)
 }
 
-sp {elaborate*reward-combina-pietremolla
+sp {elaborate*reward-combina-mollapietre
    (state <s> ^reward-link <r>
-              ^ultima-azione combina-pietremolla
+              ^ultima-azione combina-mollapietre
    )
 -->
    (<r> ^reward <rr>)
    (<rr> ^value -1)
 }
 
-sp {elaborate*reward-combina-pietrerametto
+sp {elaborate*reward-combina-ramettopietre
    (state <s> ^reward-link <r>
-              ^ultima-azione combina-pietrerametto
+              ^ultima-azione combina-ramettopietre
    )
 -->
    (<r> ^reward <rr>)
    (<rr> ^value -1)
 }
 
-sp {elaborate*reward-scomponi-pietremolla
+sp {elaborate*reward-scomponi-fionda
    (state <s> ^reward-link <r>
-              ^ultima-azione scomponi-pietremolla
+              ^ultima-azione scomponi-fionda
    )
 -->
    (<r> ^reward <rr>)
    (<rr> ^value -1)
 }
 
-sp {elaborate*reward-scomponi-pietrerametto
+sp {elaborate*reward-scomponi-mollapietre
    (state <s> ^reward-link <r>
-              ^ultima-azione scomponi-pietrerametto
+              ^ultima-azione scomponi-mollapietre
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value -1)
+}
+
+sp {elaborate*reward-scomponi-ramettopietre
+   (state <s> ^reward-link <r>
+              ^ultima-azione scomponi-ramettopietre
    )
 -->
    (<r> ^reward <rr>)

@@ -1,4 +1,5 @@
 rl -s learning on # enable RL
+# rl -s learning-policy q-learning
 indifferent-selection -g # MYFIX use epsilon-greedy decision making
 indifferent-selection -e 0.1 # MYFIX 10% deviation from greedy
 
@@ -89,13 +90,13 @@ sp {propose*posa-oggetto
 ## Proposta di posa oggetto
 sp {propose*posa-oggetto-tronco
   (state <s> ^robot <r>)
-  (<r> ^posizione <posRobot> <> rametto <> pietre <> molla ^bracci-occupati 2 ^braccio <b1>)
+  (<r> ^posizione <posRobot> <> rametto <> pietre <> molla ^bracci-occupati 2 ^braccio <b1> ^braccio <b2>)
   (<b1> ^name destro ^ha-oggetti <ogg>)
+  (<b2> ^name sinistro ^ha-oggetti <ogg>)
   -->
   (<s> ^operator <op>)
   (<op> ^name posa-oggetto-tronco
         ^oggetto <ogg>
-        ^braccio <b1>
   )
 }
 

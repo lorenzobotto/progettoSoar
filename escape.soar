@@ -1,5 +1,5 @@
 rl -s learning on # enable RL
-# rl -s learning-policy q-learning
+rl -s learning-policy q-learning
 indifferent-selection -g # MYFIX use epsilon-greedy decision making
 indifferent-selection -e 0.1 # MYFIX 10% deviation from greedy
 
@@ -27,7 +27,7 @@ sp {propose*initialize-escape
 ## Proposta di movimento
 sp {propose*movimento
   (state <s> ^robot <r> ^oggetti <o>)
-  (<r> ^posizione <posRobot> ^bracci-occupati <numBO> {< 2 <numBO>})
+  (<r> ^posizione <posRobot>)
   (<o> ^name <nomeOggetto> <> <posRobot> <> tronco1 <> tronco2 ^exists true)
   -->
   (<s> ^operator <op>)
@@ -38,7 +38,7 @@ sp {propose*movimento
 
 sp {propose*movimento-tronco
   (state <s> ^robot <r> ^oggetti <o>)
-  (<r> ^posizione <posRobot> ^bracci-occupati 0)
+  (<r> ^posizione <posRobot>)
   (<o> ^name <nomeOggetto> <> <posRobot> <> rametto <> pietre <> molla ^exists true)
   -->
   (<s> ^operator <op>)
@@ -76,7 +76,7 @@ sp {propose*presa-oggetto-tronco
 ## Proposta di posa oggetto
 sp {propose*posa-oggetto
   (state <s> ^robot <r>)
-  (<r> ^posizione <posRobot> <> tronco1 <> tronco2 ^braccio <b1>)
+  (<r> ^braccio <b1>)
   (<b1> ^ha-oggetti <ogg> <> nessuno)
   (<ogg> ^name <nomeOggetto> <> fionda <> ramettopietre <> mollapietre)
   -->
@@ -90,7 +90,7 @@ sp {propose*posa-oggetto
 ## Proposta di posa oggetto
 sp {propose*posa-oggetto-tronco
   (state <s> ^robot <r>)
-  (<r> ^posizione <posRobot> <> rametto <> pietre <> molla ^bracci-occupati 2 ^braccio <b1> ^braccio <b2>)
+  (<r> ^bracci-occupati 2 ^braccio <b1> ^braccio <b2>)
   (<b1> ^name destro ^ha-oggetti <ogg>)
   (<b2> ^name sinistro ^ha-oggetti <ogg>)
   -->
@@ -632,6 +632,15 @@ sp {apply*arrampicatiedesci
 }
 
 # Elaboro i reward
+sp {elaborate*reward-movimento
+   (state <s> ^reward-link <r>
+              ^ultima-azione movimento
+   )
+-->
+   (<r> ^reward <rr>)
+   (<rr> ^value -0.10)
+}
+
 sp {elaborate*reward-posa-oggetto
    (state <s> ^reward-link <r>
               ^ultima-azione posa-oggetto

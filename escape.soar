@@ -224,7 +224,9 @@ sp {propose*posiziona-tronco
 
 sp {propose*arrampicatiedesci
    (state <s> ^robot <r> ^uscita <u> ^oggetti <o1> <o2>)
-   (<r> ^posizione uscita)
+   (<r> ^posizione uscita ^braccio <b1> <b2>)
+   (<b1> ^name destro ^ha-oggetti nessuno)
+   (<b2> ^name sinistro ^ha-oggetti nessuno)
    (<o1> ^name tronco1 ^posizionato si)
    (<o2> ^name tronco2 ^posizionato si)
    (<u> ^colpi 0 ^altezza <altezzaUscita> ^altezza-arrivabile <altezzaUscita>)
@@ -233,7 +235,7 @@ sp {propose*arrampicatiedesci
    (<op> ^name arrampicatiedesci)
 }
 
-## RL iniziali
+## Regole RL iniziali
 sp {rl*movimento
    (state <s> ^operator <op> +)
    (<op> ^name movimento)

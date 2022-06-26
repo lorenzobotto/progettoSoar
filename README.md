@@ -1,7 +1,7 @@
 # progettoSoar
 Progetto SOAR per IALAB 2022
 
-# Soar
+## Soar
 
 Per eseguire il codice caricare il file su Soar e premere il tasto Run dell'interfaccia.
 

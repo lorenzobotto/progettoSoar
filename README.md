@@ -1,13 +1,30 @@
 # progettoSoar
-Progetto SOAR per IALAB 2022
+Progetto SOAR per il corso di Intelligenza Artificiale e Laboratorio - Unito 2022.
 
-## Soar
+## Descrizione progetto
+
+Viene implementato un agente intelligente sviluppato tramite l'architettura cognitiva SOAR in grado di scappare
+da una stanza tramite apprendimento per rinforzo (Reinforcement Learning).
+
+L’agente SOAR è prigioniero in un ambiente dove l’unica via d’uscita è una finestra in vetro posta a
+3,5 metri di altezza (l’agente è un robot di altezza 150 cm).
+La finestra in vetro è blindata ma ha un punto debole alle estremità. Questo vuol dire che, se colpita
+con precisione alle estremità, il vetro si può frantumare.
+L’agente ha a disposizione i seguenti oggetti che potrebbero tornargli utili per realizzare il suo
+obiettivo: una molla, una rametto in legno, ciottoli e pietre. Due tronchi d’albero dello stesso
+diametro da 1 metro di altezza ciascuno. L’agente può decidere di creare nuovi oggetti a partire da
+quelli che ha a disposizione ma parte da una tabula rasa (non sa quale combinazione va bene).
+Nel corso dei suoi tentativi di interazione imparerà i seguenti rinforzi per gli oggetti:
+(Molla + Rametto di legno) = +1
+(Pietre + Rametto di legno) = -1
+(Pietre + Molla) = -1
+
+Ci sono inoltre una serie di rinforzi su altre azioni (es: movimento, posa di un oggetto, scomposizioni di oggetti composti, ecc...) che permottono
+all'agente di frantumare la finestra e riuscire a scappare posizionando i due tronchi vicino all'uscita, uno sopra l'altro, per poi arrampicarsi.
+
+
+## Come eseguire
 
 Per eseguire il codice caricare il file su Soar e premere il tasto Run dell'interfaccia.
 
 Se si vogliono eseguire più Run è necessario inizializzare l’agente al termine di una Run premendo sul pulsante Init-soar e successivamente si può rieseguire.
-
-### Link slides di presentazione
-```
-https://docs.google.com/presentation/d/1kCKPthhQk0s12j-wJPZKD_3yIUoGuAi6kcSLn3D23xo/edit?usp=sharing
-```

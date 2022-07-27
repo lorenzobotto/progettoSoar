@@ -19,8 +19,10 @@ Nel corso dei suoi tentativi di interazione imparerà i seguenti rinforzi per gl
 - (Pietre + Rametto di legno) = -1
 - (Pietre + Molla) = -1
 
-Ci sono inoltre una serie di rinforzi su altre azioni (es: movimento, posa di un oggetto, scomposizioni di oggetti composti, ecc...) che permottono
+Ci sono inoltre una serie di rinforzi su altre azioni (es: movimento, posa di un oggetto, scomposizioni di oggetti composti, ecc...) che permettono
 all'agente di frantumare la finestra e riuscire a scappare posizionando i due tronchi vicino all'uscita, uno sopra l'altro, per poi arrampicarsi.
+Inoltre prevengono esecuzioni con un numero di iterazioni troppo elevate per raggiungere il goal, indirizzando l'agente a prediligere un azione
+piuttosto che un'altra tramite i rewards.
 
 Molte scelte implementative sono frutto della mia mente, in riferimento alla fisica (degli oggetti e del robot) e al buon senso.
 

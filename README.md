@@ -26,6 +26,8 @@ Molte scelte implementative sono frutto della mia mente, in riferimento alla fis
 
 ## Come eseguire
 
-Per eseguire il codice caricare il file su Soar e premere il tasto Run dell'interfaccia.
+Installare SOAR da https://soar.eecs.umich.edu/. Una volta installato si può proseguire con le esecuzioni.
+
+Per eseguire il codice caricare il file su Soar (tramite il menù 'File --> Load Source File') e premere il tasto Run dell'interfaccia.
 
 Se si vogliono eseguire più Run è necessario inizializzare l’agente al termine di una Run premendo sul pulsante Init-soar e successivamente si può rieseguire.

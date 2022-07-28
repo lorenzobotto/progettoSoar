@@ -28,8 +28,17 @@ Molte scelte implementative sono frutto della mia mente, in riferimento alla fis
 
 ## Come eseguire
 
-Installare SOAR da https://soar.eecs.umich.edu/. Una volta installato si può proseguire con le esecuzioni.
+Scaricare SOAR da https://soar.eecs.umich.edu/. Posizionarsi nella cartella principale e avviare l'interfaccia:
+```
+SoarJavaDebugger.bat
+```
 
 Per eseguire il codice caricare il file su Soar (tramite il menù 'File --> Load Source File') e premere il tasto Run dell'interfaccia.
 
 Se si vogliono eseguire più Run è necessario inizializzare l’agente al termine di una Run premendo sul pulsante Init-soar e successivamente si può rieseguire.
+
+## Video esecuzione del progetto
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=NVMhxv6tfz8
+" rel="noopener" target="_blank"><img src="http://img.youtube.com/vi/NVMhxv6tfz8/0.jpg" 
+alt="Esecuzione Soar" width="400" border="10" /></a>

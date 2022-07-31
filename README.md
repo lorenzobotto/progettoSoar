@@ -28,7 +28,7 @@ Molte scelte implementative sono frutto della mia mente, in riferimento alla fis
 
 ## Come eseguire
 
-Scaricare SOAR da https://soar.eecs.umich.edu/. Posizionarsi nella cartella principale e avviare l'interfaccia:
+Scaricare SOAR da https://soar.eecs.umich.edu/. Posizionarsi nella cartella principale e avviare l'interfaccia tramite riga di comando:
 ```
 SoarJavaDebugger.bat
 ```
